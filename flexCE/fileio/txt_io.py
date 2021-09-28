@@ -39,10 +39,11 @@ def _colnames(elements):
         str: header line that describes columns.
     """
     time = ['{:8}'.format('Time')]
+    sfr = ['{:8}'.format('SFR')]
     survivors = ['{:10}'.format('Survivors')]
     feh = ['{:8}'.format('[Fe/H]')]
     abunds = ['{:8}'.format('[{}/Fe]'.format(item)) for item in elements]
-    line = time + survivors + feh + abunds
+    line = time + sfr + survivors + feh + abunds
     return '  '.join(line) + '\n'
 
 
@@ -57,14 +58,16 @@ def txt_write(path_out, sim_id, box, ab):
     """
     fname = _make_sim_path(path_out, sim_id)
     with open(fname, 'w') as f:
+        f.write('#')
         f.write(_colnames(ab.elements_out))
-        for t, s, fe, xfe in zip(box.t[1:], box.survivors[1:], ab.feh,
-                                 ab.xfe.T):
+        for t, r, s, fe, xfe in zip(box.t[1:], box.sfr[1:], box.survivors[1:],
+                                    ab.feh, ab.xfe.T):
             time = ['{:<7}'.format(t)]
+            sfr = ['{:8.5f}'.format(r)]
             survivors = ['{:10}'.format(s)]
             feh = ['{:8.5f}'.format(fe)]
             abunds = ['{:8.5f}'.format(item) for item in xfe]
-            line = time + survivors + feh + abunds
+            line = time + sfr + survivors + feh + abunds
             f.write('  '.join(line) + '\n')
 
 

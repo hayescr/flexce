@@ -25,8 +25,8 @@ def integrate_power_law(exponent, bins=None):
     elif exponent == -1.:
         integral = np.log(bins[1:]) - np.log(bins[:-1])
     else:
-        integral = (1. / exponent) * (bins[1:]**(exponent) -
-                                      bins[:-1]**(exponent))
+        integral = (1. / exponent) * (bins[1:]**(exponent)
+                                      - bins[:-1]**(exponent))
     return integral
 
 
@@ -49,8 +49,8 @@ def integrate_multi_power_law(bins, exponents, breaks, mass_bins,
                 else:
                     ind = np.arange(len(bins), dtype=int)
             elif i != len(exponents) - 1:
-                ind = np.where((bins >= breaks[i-1]) &
-                               (bins <= breaks[i]))[0]
+                ind = np.where((bins >= breaks[i - 1])
+                               & (bins <= breaks[i]))[0]
             else:
                 ind = np.where(bins >= breaks[-1])[0]
             ind_int = ind[:-1]
@@ -73,13 +73,13 @@ def check_multi_slope_compatibility(exponents, breaks, mass_bins):
     """
     for b in breaks:
         if np.around(b, decimals=5) not in \
-               np.around(mass_bins, decimals=5):
-            raise ValueError('Breaks in power law IMF must be located ' +
-                             'at the edge of a mass bin.')
+                np.around(mass_bins, decimals=5):
+            raise ValueError('Breaks in power law IMF must be located '
+                             + 'at the edge of a mass bin.')
     if (len(exponents) > 1) and (len(exponents) - len(breaks) != 1):
-        raise ValueError('Number of power law IMF slopes must be exactly ' +
-                         'ONE greater than the number of breaks in the ' +
-                         'power law.')
+        raise ValueError('Number of power law IMF slopes must be exactly '
+                         + 'ONE greater than the number of breaks in the '
+                         + 'power law.')
     return True
 
 
@@ -92,8 +92,8 @@ def lifetime_int(m):
     Returns:
         array: stellar lifetimes.
     """
-    return 10.**((1.338 - np.sqrt(1.790 - 0.2232 * (7.764 - np.log10(m)))) /
-                 0.1116 - 9.) * 1000.
+    return 10.**((1.338 - np.sqrt(1.790 - 0.2232 * (7.764 - np.log10(m))))
+                 / 0.1116 - 9.) * 1000.
 
 
 def lifetime_high(m):
@@ -134,8 +134,8 @@ def invert_lifetime_int(t):
     Returns:
         array: stellar masses.
     """
-    return 10.**(7.764 - (1.790 - (0.3336 - 0.1116 *
-                                   np.log10(t / 1000.))**2.) / 0.2232)
+    return 10.**(7.764 - (1.790 - (0.3336 - 0.1116
+                                   * np.log10(t / 1000.))**2.) / 0.2232)
 
 
 def invert_lifetime_high(t):
@@ -147,7 +147,7 @@ def invert_lifetime_high(t):
     Returns:
         array: stellar masses.
     """
-    return (((t / 1000.) - 0.003) / 1.2)**(-1./1.85)
+    return (((t / 1000.) - 0.003) / 1.2)**(-1. / 1.85)
 
 
 def random_poisson(x):
@@ -244,8 +244,8 @@ class ChemEvol:
         elif imf == 'bell':
             self.bell()
         else:
-            raise ValueError('Use valid IMF type: "kroupa", "salpeter",' +
-                             '"bell", or "power_law".')
+            raise ValueError('Use valid IMF type: "kroupa", "salpeter",'
+                             + '"bell", or "power_law".')
         self.mass_per_bin()
 
     def powerlaw_imf(self, alpha, mass_breaks):
@@ -296,9 +296,9 @@ class ChemEvol:
             norm_factor = self.normalize_imf()
         except IndexError:
             print(traceback.print_exc())
-            raise ValueError('Number of power law IMF slopes must be ' +
-                             'exactly ONE greater than the number of breaks ' +
-                             'in the power law.')
+            raise ValueError('Number of power law IMF slopes must be '
+                             + 'exactly ONE greater than the number of breaks '
+                             + 'in the power law.')
         self.mass_int = integrate_multi_power_law(self.mass_bins,
                                                   self.alpha2 * -1.,
                                                   self.mass_breaks,
@@ -333,8 +333,8 @@ class ChemEvol:
         norm_factor = np.ones(len(self.alpha))
         if len(self.mass_breaks) > 0:
             for i in range(1, len(self.alpha)):
-                norm_factor[i] = self.mass_breaks[i-1]**(-self.alpha[i-1]) / \
-                                 self.mass_breaks[i-1]**(-self.alpha[i])
+                norm_factor[i] = self.mass_breaks[i - 1]**(-self.alpha[i - 1]) / \
+                    self.mass_breaks[i - 1]**(-self.alpha[i])
         return norm_factor
 
     def stellar_lifetimes(self):
@@ -364,7 +364,7 @@ class ChemEvol:
         mass_int_tmp = np.zeros(self.n_bins)
         norm_factor = self.normalize_imf()
         for j in range(self.n_bins):
-            mbin = self.mass_bins[j:j+2]
+            mbin = self.mass_bins[j:j + 2]
             mass_int_tmp[j] = integrate_multi_power_law(mbin,
                                                         self.alpha2 * -1,
                                                         self.mass_breaks,
@@ -380,9 +380,9 @@ class ChemEvol:
                 # mass bin that spans the top end of the mass range that will
                 # evolve in this timestep
                 if (m_ev[i] >= self.mass_bins[j]) and \
-                       (m_ev[i] < self.mass_bins[j+1]):
+                        (m_ev[i] < self.mass_bins[j + 1]):
                     indtmp.append(j)
-                    mlow_tmp = np.maximum(self.mass_bins[j], m_ev[i+1])
+                    mlow_tmp = np.maximum(self.mass_bins[j], m_ev[i + 1])
                     mbin_tmp = np.array([mlow_tmp, m_ev[i]])
                     mass_int2_tmp = integrate_multi_power_law(mbin_tmp,
                                                               self.alpha2 * -1,
@@ -392,10 +392,10 @@ class ChemEvol:
                     fractmp.append(mass_int2_tmp / mass_int_tmp[j])
                 # mass bins fully contained within the mass range that will
                 # evolve in this timestep
-                elif ((self.mass_bins[j] > m_ev[i+1]) and
-                      (self.mass_bins[j] < m_ev[i])):
+                elif ((self.mass_bins[j] > m_ev[i + 1])
+                      and (self.mass_bins[j] < m_ev[i])):
                     indtmp.append(j)
-                    mbin_tmp = self.mass_bins[j:j+2]
+                    mbin_tmp = self.mass_bins[j:j + 2]
                     mass_int2_tmp = integrate_multi_power_law(mbin_tmp,
                                                               self.alpha2 * -1,
                                                               self.mass_breaks,
@@ -404,10 +404,10 @@ class ChemEvol:
                     fractmp.append(mass_int2_tmp / mass_int_tmp[j])
                 # mass bin that spans bottom top end of the mass range that
                 # will evolve in this timestep
-                elif ((m_ev[i+1] > self.mass_bins[j]) and
-                      (m_ev[i+1] < self.mass_bins[j+1])):
+                elif ((m_ev[i + 1] > self.mass_bins[j])
+                      and (m_ev[i + 1] < self.mass_bins[j + 1])):
                     indtmp.append(j)
-                    mbin_tmp = np.array([m_ev[i+1], self.mass_bins[j+1]])
+                    mbin_tmp = np.array([m_ev[i + 1], self.mass_bins[j + 1]])
                     mass_int2_tmp = integrate_multi_power_law(mbin_tmp,
                                                               self.alpha2 * -1,
                                                               self.mass_breaks,
@@ -536,7 +536,7 @@ class ChemEvol:
         (accreted at an efficiency [eps]) equals the Chandrasekhar limit (1.4
         Msun).
         '''
-        t2 = np.arange(29., self.t[-1]+1., 1.)  # time in 1 Myr intervals
+        t2 = np.arange(29., self.t[-1] + 1., 1.)  # time in 1 Myr intervals
         m2 = invert_lifetime(t2)
         # mass_int2_tmp = self.integrate_multi_power_law(
         #     m2, self.alpha2 * -1, self.mass_breaks, self.mass_bins,
@@ -566,21 +566,21 @@ class ChemEvol:
         for i in range(len(self.alpha)):
             if i == 0:
                 if len(self.mass_breaks) > 0:
-                    ind = np.where(np.around(m1low, decimals=5) <=
-                                   self.mass_breaks[0])[0]
+                    ind = np.where(np.around(m1low, decimals=5)
+                                   <= self.mass_breaks[0])[0]
                 else:
                     ind = np.arange(len(m1low), dtype=int)
                 ind_int = ind[:-1]
             elif i != len(self.alpha) - 1:
-                ind = np.where((m1low >= self.mass_breaks[i-1]) &
-                               (m1low <= self.mass_breaks[i]))[0]
+                ind = np.where((m1low >= self.mass_breaks[i - 1])
+                               & (m1low <= self.mass_breaks[i]))[0]
                 ind_int = ind[:-1]
             else:
                 ind = np.where(m1low >= self.mass_breaks[-1])[0]
                 ind_int = ind
-            nm2[ind_int] = ((m2[ind_int]**-self.alpha[i]) *
-                            ((m2[ind_int]/m1low[ind_int])**(self.alpha[i]+gam) -
-                             (m2[ind_int]/m1up)**(self.alpha[i] + gam)))
+            nm2[ind_int] = ((m2[ind_int]**-self.alpha[i])
+                            * ((m2[ind_int] / m1low[ind_int])**(self.alpha[i] + gam) -
+                               (m2[ind_int] / m1up)**(self.alpha[i] + gam)))
         # from Greggio (2005): t**-1.44 approximates log(dm/dt) = log(m) -
         # log(t), which works for either the Padovani & Matteucci (1993) or the
         # Greggio (2005)/Girardi et al. (2000) stellar lifetimes
@@ -592,7 +592,7 @@ class ChemEvol:
         self.ria = np.zeros(self.n_steps - 1)
         self.ria[0] = ria1[:ind_tbin[0]].sum()
         for i in range(1, self.n_steps - 1):
-            self.ria[i] = ria1[ind_tbin[i-1]:ind_tbin[i]].sum()
+            self.ria[i] = ria1[ind_tbin[i - 1]:ind_tbin[i]].sum()
         if normalize:
             ind10000 = np.where(self.t <= 10000.)
             self.ria = self.ria / self.ria[ind10000].sum() * nia_per_mstar
@@ -618,17 +618,17 @@ class ChemEvol:
         population
         '''
         if self.snia_dtd_func == 'exponential':
-            ind_min_t = (tstep -
-                         np.ceil(self.min_snia_time / self.dt).astype(int))
+            ind_min_t = (tstep
+                         - np.ceil(self.min_snia_time / self.dt).astype(int))
             if ind_min_t > 0:
-                Nia_stat = np.sum(self.Mwd_Ia[:ind_min_t+1] * self.dMwd /
-                                  snia_mass)
-                self.Mwd_Ia[:ind_min_t+1] *= 1. - self.dMwd
+                Nia_stat = np.sum(self.Mwd_Ia[:ind_min_t + 1] * self.dMwd
+                                  / snia_mass)
+                self.Mwd_Ia[:ind_min_t + 1] *= 1. - self.dMwd
             else:
                 Nia_stat = 0.
         elif self.snia_dtd_func == 'power_law':
-            Nia_stat = np.sum(self.ria[:tstep] *
-                              np.sum(self.mstar[1:tstep+1], axis=1)[::-1])
+            Nia_stat = np.sum(self.ria[:tstep]
+                              * np.sum(self.mstar[1:tstep + 1], axis=1)[::-1])
         elif self.snia_dtd_func == 'prompt_delayed':
             ind = tstep - np.ceil(self.min_snia_time / self.dt)
             if ind < 0.:
@@ -637,8 +637,8 @@ class ChemEvol:
                 Nia_prompt = sfr[ind] * self.prob_prompt
             Nia_stat = (Nia_prompt + (mstar_tot * self.prob_delay)) * self.dt
         elif self.snia_dtd_func == 'single_degenerate':
-            Nia_stat = np.sum(self.ria[:tstep] *
-                              np.sum(self.mstar[1:tstep+1], axis=1)[::-1])
+            Nia_stat = np.sum(self.ria[:tstep]
+                              * np.sum(self.mstar[1:tstep + 1], axis=1)[::-1])
         return Nia_stat
 
     def inflow_rx(self, func='double_exp', mgas_init=0., k=None,
@@ -662,20 +662,20 @@ class ChemEvol:
         self.mgas_init = mgas_init
         self.inflow_func = func
         if func == 'double_exp':
-            self.inflow_rate = ((k['M1']/k['b1']) * np.exp(-self.t/k['b1']) +
-                                (k['M2']/k['b2']) * np.exp(-self.t/k['b2']))
+            self.inflow_rate = ((k['M1'] / k['b1']) * np.exp(-self.t / k['b1'])
+                                + (k['M2'] / k['b2']) * np.exp(-self.t / k['b2']))
         elif func == 'exp':
-            self.inflow_rate = (k['M1']/k['b1']) * np.exp(-self.t/k['b1'])
+            self.inflow_rate = (k['M1'] / k['b1']) * np.exp(-self.t / k['b1'])
         elif func == 'te-t':
-            self.inflow_rate = ((k['M1']/k['b1']) * (self.t/k['b1']) *
-                                np.exp(-self.t/k['b1']))
+            self.inflow_rate = ((k['M1'] / k['b1']) * (self.t / k['b1'])
+                                * np.exp(-self.t / k['b1']))
         elif func == 'constant_mgas':
             self.inflow_rate = np.zeros(self.n_steps)
         elif func == 'custom':
             self.inflow_rate = inflow_rate
         else:
-            print('\nValid inflow functions: "double_exp", "exp", "te-t",' +
-                  ' "constant_mgas", and "custom\n')
+            print('\nValid inflow functions: "double_exp", "exp", "te-t",'
+                  + ' "constant_mgas", and "custom\n')
         self.inflow_ab_pattern = inflow_ab_pattern
         self.inflow_metallicity = inflow_metallicity
 
@@ -711,11 +711,11 @@ class ChemEvol:
         elif self.inflow_ab_pattern == 'recycled':
             ind = tstep - 1
             inflow_init = self.mgas_iso[ind] / self.mgas_iso[ind].sum()
-            scaling_factor = (0.02 * scaling_factor /
-                              inflow_init[ind_metal].sum())
+            scaling_factor = (0.02 * scaling_factor
+                              / inflow_init[ind_metal].sum())
         else:
-            print('\nValid inflow compositions: "bbns", "alpha_enhanced",' +
-                  ' "scaled_solar", and "recycled"\n')
+            print('\nValid inflow compositions: "bbns", "alpha_enhanced",'
+                  + ' "scaled_solar", and "recycled"\n')
         inflow = np.zeros(yields.n_sym)
         inflow[ind_metal] = inflow_init[ind_metal] * scaling_factor
         tmp = inflow.sum()
@@ -792,15 +792,40 @@ class ChemEvol:
                                      fdirect=fdirect, fwarm=self.fwarm,
                                      tcool=tcool)
 
-    def star_formation(self, nu_kslaw=2.5e-10, N_kslaw=1.4):
+    # def star_formation(self, nu_kslaw=2.5e-10, N_kslaw=1.4):
+    #     '''From Kennicutt (1998): Sigma_SFR = 2.5e-4 * Sigma_gas^1.4, where
+    #     Sigma_SFR [=] Msun yr^-1 kpc^-2 and Sigma_gas [=] Msun yr^-1.  nu =
+    #     2.5-10 if Sigma_SFR is converted into units of Msun yr^-1 pc^-2.  '''
+    #     self.nu_kslaw = nu_kslaw
+    #     self.N_kslaw = N_kslaw
+    #     self.sf_param = dict(nu=nu_kslaw, N=N_kslaw)
+    #
+    # def sf_law(self, mgas):
+    #     '''Calculate the SFR [Msun/yr] given the gas mass and the two free
+    #     parameters that determine the SF law: nu_kslaw [Gyr^-1] and N_kslaw
+    #     (~1.0--2.0).
+    #
+    #     From Kennicutt (1998): Sigma_SFR = 2.5e-4 * Sigma_gas^1.4, where
+    #     Sigma_SFR [=] Msun yr^-1 kpc^-2 and Sigma_gas [=] Msun yr^-1.  nu =
+    #     2.5-10 if Sigma_SFR is converted into units of Msun yr^-1 pc^-2.
+    #     '''
+    #     return (self.nu_kslaw) * self.area * (mgas / self.area)**self.N_kslaw
+
+    def star_formation(self, func='constant', sf_k=None, N_kslaw=1.4):
         '''From Kennicutt (1998): Sigma_SFR = 2.5e-4 * Sigma_gas^1.4, where
         Sigma_SFR [=] Msun yr^-1 kpc^-2 and Sigma_gas [=] Msun yr^-1.  nu =
         2.5-10 if Sigma_SFR is converted into units of Msun yr^-1 pc^-2.  '''
-        self.nu_kslaw = nu_kslaw
-        self.N_kslaw = N_kslaw
-        self.sf_param = dict(nu=nu_kslaw, N=N_kslaw)
 
-    def sf_law(self, mgas):
+        if func == 'constant':
+            self.nu_kslaw = sf_k['nu1'] * np.ones(self.n_steps)
+        elif func == 'sf_gauss':
+            self.nu_kslaw = sf_k['nu1'] * (1 + (sf_k['f1'] - 1.)
+                                           * np.exp(-0.5 * ((self.t - sf_k['tau2']) / sf_k['tau1'])**2.))
+
+        self.N_kslaw = N_kslaw
+        self.sf_param = dict(func=func, sf_k=sf_k, N=N_kslaw)
+
+    def sf_law(self, nu_kslaw, mgas):
         '''Calculate the SFR [Msun/yr] given the gas mass and the two free
         parameters that determine the SF law: nu_kslaw [Gyr^-1] and N_kslaw
         (~1.0--2.0).
@@ -809,7 +834,7 @@ class ChemEvol:
         Sigma_SFR [=] Msun yr^-1 kpc^-2 and Sigma_gas [=] Msun yr^-1.  nu =
         2.5-10 if Sigma_SFR is converted into units of Msun yr^-1 pc^-2.
         '''
-        return (self.nu_kslaw) * self.area * (mgas / self.area)**self.N_kslaw
+        return (nu_kslaw) * self.area * (mgas / self.area)**self.N_kslaw
 
     def initialize_arrays(self, yld, long_output):
         self.agb = np.zeros((self.n_steps, yld.n_sym))
@@ -886,47 +911,49 @@ class ChemEvol:
         # initial conditions
         self.mgas_iso[0] = yields.bbmf * self.mgas_init
         if self.warmgas_on:
-            self.mwarmgas_iso[0] = (self.warmgas_ab_pattern *
-                                    self.mwarmgas_init / 4.)
+            self.mwarmgas_iso[0] = (self.warmgas_ab_pattern
+                                    * self.mwarmgas_init / 4.)
         ind_metal = np.where(yields.sym_mass > 4.)
-        self.metallicity[0] = (np.sum(self.mgas_iso[0, ind_metal]) /
-                               self.mgas_iso[0, 0])
+        self.metallicity[0] = (np.sum(self.mgas_iso[0, ind_metal])
+                               / self.mgas_iso[0, 0])
         self.mfrac[0] = self.mgas_iso[0] / np.sum(self.mgas_iso[0])
         if np.sum(self.mwarmgas_iso[0]) > 0.:
-            self.mwarmfrac[0] = (self.mwarmgas_iso[0] /
-                                 np.sum(self.mwarmgas_iso[0]))
+            self.mwarmfrac[0] = (self.mwarmgas_iso[0]
+                                 / np.sum(self.mwarmgas_iso[0]))
         snii_agb_yields = np.append(yields.agb_yields, yields.snii_yields,
                                     axis=1)
         for i in range(1, self.n_steps):
             if self.t[i] % 1000 < self.dt:
                 print('time: {} Myr'.format(int(self.t[i])))
-            self.metallicity[i] = (np.sum(self.mgas_iso[i-1, ind_metal]) /
-                                   self.mgas_iso[i-1, 0])
-            self.mfrac[i] = self.mgas_iso[i-1] / np.sum(self.mgas_iso[i-1])
-            if np.sum(self.mwarmgas_iso[i-1]) > 0.:
-                self.mwarmfrac[i] = (self.mwarmgas_iso[i-1] /
-                                     np.sum(self.mwarmgas_iso[i-1]))
+            self.metallicity[i] = (np.sum(self.mgas_iso[i - 1, ind_metal])
+                                   / self.mgas_iso[i - 1, 0])
+            self.mfrac[i] = self.mgas_iso[i - 1] / np.sum(self.mgas_iso[i - 1])
+            if np.sum(self.mwarmgas_iso[i - 1]) > 0.:
+                self.mwarmfrac[i] = (self.mwarmgas_iso[i - 1]
+                                     / np.sum(self.mwarmgas_iso[i - 1]))
             if sfh is None:
-                self.sfr[i] = self.sf_law(np.sum(self.mgas_iso[i-1]))
+                # self.sfr[i] = self.sf_law(np.sum(self.mgas_iso[i-1]))
+                self.sfr[i] = self.sf_law(self.nu_kslaw[i],
+                                          np.sum(self.mgas_iso[i - 1]))
                 # mimic gap in SF in the two infall model caused by a SF
                 # threshold gas surface density
                 if two_infall:
                     if (self.t[i] > two_infall_args['t_sf_off'][0]) & \
-                           (self.t[i] < two_infall_args['t_sf_off'][1]):
+                            (self.t[i] < two_infall_args['t_sf_off'][1]):
                         self.sfr[i] = 0.
                     elif self.t[i] < 1000.:
-                        self.sfr[i] = (self.sfr[i] *
-                                       two_infall_args['sfe_thick'])
+                        self.sfr[i] = (self.sfr[i]
+                                       * two_infall_args['sfe_thick'])
             else:
                 self.sfr[i] = sfh[i]  # [=] Msun/yr
             self.dm_sfr[i] = self.sfr[i] * (self.dt * 1e6)
             # draw from IMF
             self.mstar_stat[i] = self.dm_sfr[i] * self.mass_frac
-            self.Nstar_stat[i] = (self.dm_sfr[i] * self.mass_frac /
-                                  self.mass_ave)
+            self.Nstar_stat[i] = (self.dm_sfr[i] * self.mass_frac
+                                  / self.mass_ave)
             self.random_num_state_Nstar.append(np.random.get_state())
             if set_state_Nstar is not None:
-                np.random.set_state(set_state_Nstar[i-1])
+                np.random.set_state(set_state_Nstar[i - 1])
             self.Nstar[i] = random_poisson(self.Nstar_stat[i])
             self.mstar[i] = self.Nstar[i] * self.mass_ave
             self.Nstar_left[i] = self.Nstar[i]
@@ -937,26 +964,26 @@ class ChemEvol:
             elif self.metallicity[i] > yields.snii_agb_z[-1]:
                 ind_yld[i] = -1
             else:
-                ind_yld[i] = np.where(self.metallicity[i] <
-                                      yields.snii_agb_z)[0][0]
+                ind_yld[i] = np.where(self.metallicity[i]
+                                      < yields.snii_agb_z)[0][0]
             # ind_yld[i] = -1 # uncomment for solar metallicity yields only
             # Evolve stars from previous timesteps
             snii_agb_tmp = np.zeros((self.n_bins, yields.n_sym))
             # mass_returned_tot = 0.
             mass_remnant_tot = 0.
-            for j in range(1, i+1):
+            for j in range(1, i + 1):
                 # ind_ev is a list of indices of mass bins from a given birth
                 # time-step that will evolve in the current time-step.
-                ind = self.ind_ev[i-j]
+                ind = self.ind_ev[i - j]
                 # abs_yld (171, 300) = net yield + (isotopic mass fraction at
                 # birth) * (mass returned to ISM)
-                abs_yld = (snii_agb_yields[ind_yld[j]] +
-                           (self.mfrac[j] *
-                            ((self.mass_ave -
-                              yields.snii_agb_rem[ind_yld[j]]) *
-                             np.ones((yields.n_sym, self.n_bins))).T))
+                abs_yld = (snii_agb_yields[ind_yld[j]]
+                           + (self.mfrac[j] *
+                              ((self.mass_ave -
+                                yields.snii_agb_rem[ind_yld[j]]) *
+                               np.ones((yields.n_sym, self.n_bins))).T))
                 # number of stars to evolve
-                N_ev = self.Nstar[j, ind] * self.frac_ev[i-j]
+                N_ev = self.Nstar[j, ind] * self.frac_ev[i - j]
                 snii_agb_tmp[ind] += (N_ev * abs_yld[ind].T).T
                 if long_output:
                     self.snii_agb_net[i, ind] += (
@@ -967,8 +994,8 @@ class ChemEvol:
                 mass_remnant_tot += np.sum(yields.snii_agb_rem[ind_yld[j], ind]
                                            * N_ev)
                 self.Nstar_left[j, ind] -= N_ev
-                self.mstar_left[j, ind] -= (self.mstar[j, ind] *
-                                            self.frac_ev[i-j])
+                self.mstar_left[j, ind] -= (self.mstar[j, ind]
+                                            * self.frac_ev[i - j])
             self.snii[i] = np.sum(snii_agb_tmp[ind8:], axis=0)
             self.agb[i] = np.sum(snii_agb_tmp[:ind8], axis=0)
             if long_output:
@@ -977,45 +1004,45 @@ class ChemEvol:
             # mass of WDs that will be formed from the stellar population that
             # is born in the current timestep
             if self.snia_dtd_func == 'exponential':
-                self.Mwd[i] = np.sum(self.Nstar[i, ind_ia] *
-                                     yields.agb_rem[ind_yld[i], ind_ia])
+                self.Mwd[i] = np.sum(self.Nstar[i, ind_ia]
+                                     * yields.agb_rem[ind_yld[i], ind_ia])
                 self.Mwd_Ia[i] = self.Mwd[i] * self.snia_fraction
                 self.Mwd_Ia_init[i] = self.Mwd[i] * self.snia_fraction
             self.random_num_state_snia.append(np.random.get_state())
             if set_state_snia is not None:
-                np.random.set_state(set_state_snia[i-1][i-1])
+                np.random.set_state(set_state_snia[i - 1][i - 1])
             cnt_ia = np.random.poisson(
                 self.snia_ev(i, yields.snia_yields.sum(),
                              self.mstar_left.sum(), self.sfr))
             self.NIa[i] = cnt_ia
             self.snia[i] = yields.snia_yields * self.NIa[i]
-            self.mremnant[i] = (mass_remnant_tot - self.NIa[i] *
-                                yields.snia_yields.sum())
+            self.mremnant[i] = (mass_remnant_tot - self.NIa[i]
+                                * yields.snia_yields.sum())
             # gas flows
             self.sf[i] = np.sum(self.mstar[i]) * self.mfrac[i]
             self.outflow[i] = self.outflow_calc(i, self.sf[i], self.snii[i],
                                                 self.agb[i], self.snia[i])
             if self.tcool > 0.:
-                self.gas_cooling[i] = (self.mwarmgas_iso[i-1] * self.dt /
-                                       self.tcool)
+                self.gas_cooling[i] = (self.mwarmgas_iso[i - 1] * self.dt
+                                       / self.tcool)
             if self.inflow_func == 'constant_mgas':
                 self.inflow_rate[i] = (np.sum(
-                    self.sf[i] + self.outflow[i] - self.gas_cooling[i] -
-                    self.fdirect * (self.snii[i] + self.agb[i] + self.snia[i]))
-                                       / self.dt)
-            self.inflow[i] = (self.inflow_composition(yields, i) *
-                              self.inflow_rate[i] * self.dt)
-            self.mgas_iso[i] = (self.mgas_iso[i-1] +
-                                (self.fdirect + self.feject) *
-                                (self.snii[i] + self.agb[i] + self.snia[i]) +
-                                self.gas_cooling[i] - self.sf[i] +
-                                self.inflow[i] - self.outflow[i])
+                    self.sf[i] + self.outflow[i] - self.gas_cooling[i]
+                    - self.fdirect * (self.snii[i] + self.agb[i] + self.snia[i]))
+                    / self.dt)
+            self.inflow[i] = (self.inflow_composition(yields, i)
+                              * self.inflow_rate[i] * self.dt)
+            self.mgas_iso[i] = (self.mgas_iso[i - 1]
+                                + (self.fdirect + self.feject)
+                                * (self.snii[i] + self.agb[i] + self.snia[i])
+                                + self.gas_cooling[i] - self.sf[i]
+                                + self.inflow[i] - self.outflow[i])
             self.mwarmgas_iso[i] = (
-                self.mwarmgas_iso[i-1] - self.gas_cooling[i] + self.fwarm *
-                (self.snii[i] + self.agb[i] + self.snia[i]))
+                self.mwarmgas_iso[i - 1] - self.gas_cooling[i] + self.fwarm
+                * (self.snii[i] + self.agb[i] + self.snia[i]))
             if (i < 4) & self.warmgas_on:
-                self.mwarmgas_iso[i] += (self.warmgas_ab_pattern *
-                                         self.mwarmgas_init / 4.)
+                self.mwarmgas_iso[i] += (self.warmgas_ab_pattern
+                                         * self.mwarmgas_init / 4.)
         self.Nstar_left = self.Nstar_left.astype(int)
         self.mstar_left[np.where(np.abs(self.mstar_left) < -1e-8)] = 0.
         if long_output:
@@ -1039,12 +1066,12 @@ class ChemEvol:
 
         inflow[0].sum() is fractionally larger than inflow_rate.sum() by 7.5e-5
         (due to sum(bbmf) = 1. + 7.5e-5)'''
-        m_in = (self.inflow.sum() + self.mgas_iso[0].sum() +
-                self.mwarmgas_iso[0].sum() * 4.)
+        m_in = (self.inflow.sum() + self.mgas_iso[0].sum()
+                + self.mwarmgas_iso[0].sum() * 4.)
         m_out = self.outflow.sum()
         m_gas = self.mgas_iso[-1].sum() + self.mwarmgas_iso[-1].sum()
-        m_star = (self.mstar.sum() - self.snii.sum() - self.agb.sum() -
-                  self.NIa.sum() * yields.snia_yields.sum())
+        m_star = (self.mstar.sum() - self.snii.sum() - self.agb.sum()
+                  - self.NIa.sum() * yields.snia_yields.sum())
         print('mass_in - mass_out:', m_in - m_out - m_gas - m_star)
 
     def snii_snia_rate(self):

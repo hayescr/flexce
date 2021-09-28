@@ -10,3 +10,5 @@
 /flexCE/data/yields/bravo
 /config/stochasticity
 /plots/config/stochasticity
+*.DS_Store
+sim*.txt

@@ -90,8 +90,15 @@ def read_sim_cfg(file_in):
                 outflows_args[k.split('outflows_')[1]] = v
             elif 'warmgasres' in k:
                 warmgasres_args[k.split('warmgasres_')[1]] = v
+            # elif 'sf' in k:
+            #     sf_args[k.split('sf_')[1]] = v
             elif 'sf' in k:
-                sf_args[k.split('sf_')[1]] = v
+                if k.split('sf_')[1] in ['nu1', 'f1', 'tau1', 'tau2', 'tau3']:
+                    if 'sf_k' not in sf_args:
+                        sf_args['sf_k'] = {}
+                    sf_args['sf_k'][k.split('sf_')[1]] = v
+                else:
+                    sf_args[k.split('sf_')[1]] = v
 
     f.close()
     return (sim_id, yld_args, initialize_args, mass_bins_args, snia_dtd_args,

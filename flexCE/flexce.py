@@ -93,8 +93,9 @@ def output(path, sim_id, gal, abund):
     if not os.path.isdir(path_sim):
         os.mkdir(path_sim)
 
-    pickle_write(gal, join(path_sim, ''.join(('box', sim_id, '.pck'))))
-    pickle_write(abund, join(path_sim, ''.join(('ab', sim_id, '.pck'))))
+    # Uncomment to save the full simulations (warning they take a lot of space)
+    # pickle_write(gal, join(path_sim, ''.join(('box', sim_id, '.pck'))))
+    # pickle_write(abund, join(path_sim, ''.join(('ab', sim_id, '.pck'))))
 
     txt_write(path_out, sim_id, gal, abund)
 
