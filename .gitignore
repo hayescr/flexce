@@ -12,3 +12,7 @@
 /plots/config/stochasticity
 *.DS_Store
 sim*.txt
+/config/dwarf_grid
+run_dwarf_grid.py
+run_status_dwarf_grid.txt
+/config/*test*
